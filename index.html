@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Adicionar um novo Pet</h1>
+  <form id="petForm">
+    <div class="form-group">
+      <label for="name">Nome:</label>
+      <input type="text" id="name" name="name" required />
+    </div>
+    <div class="form-group">
+      <label for="age">Idade:</label>
+      <input type="number" id="age" name="age" required />
+    </div>
+    <div class="form-group">
+      <label for="species">Espécie:</label>
+      <input type="text" id="species" name="species" required />
+    </div>
+    <div class="form-group">
+      <label for="adopted">Adotado:</label>
+      <input type="checkbox" id="adopted" name="adopted" />
+    </div>
+    <button type="submit">Adicionar Pet</button>
+  </form>
+
+  <h2>Pets Cadastrados</h2>
+  <ul id="petList"></ul>
+
+  <script>
+    document.getElementById("petForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const petData = {
+        name: document.getElementById("name").value,
+        age: document.getElementById("age").value,
+        species: document.getElementById("species").value,
+        adopted: document.getElementById("adopted").checked ? 1 : 0
+      };
+
+      fetch("https://simple-pets-api3.vercel.app/api/pets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(petData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert("Pet adicionado com sucesso!");
+        loadPets(); // Recarregar a lista de pets
+      })
+      .catch(error => {
+        console.error("Erro ao adicionar pet:", error);
+        alert("Ocorreu um erro.");
+      });
+    });
+
+    // Carregar a lista de pets
+    function loadPets() {
+      fetch("https://simple-pets-api3.vercel.app/api/pets")
+        .then(response => response.json())
+        .then(data => {
+          const petList = document.getElementById("petList");
+          petList.innerHTML = "";
+          data.forEach(pet => {
+            const li = document.createElement("li");
+            li.textContent = `${pet.name} - ${pet.species} - ${pet.age} anos`;
+            petList.appendChild(li);
+          });
+        })
+        .catch(error => {
+          console.error("Erro ao carregar pets:", error);
+        });
+    }
+
+    loadPets(); // Carregar pets ao inicializar a página
+  </script>
+</body>
+</html>
